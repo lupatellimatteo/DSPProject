@@ -1,22 +1,7 @@
 package com.matteolupatelli.dspproject.app;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ListActivity;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.baasbox.android.BaasClientException;
 import com.baasbox.android.BaasDocument;
@@ -26,33 +11,122 @@ import com.baasbox.android.BaasResult;
 import com.baasbox.android.BaasServerException;
 import com.baasbox.android.BaasUser;
 
-import java.util.List;
+import android.app.AlertDialog;
+import android.app.ListActivity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.ActionMode;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
-/**
- * Created by matteo on 04/09/14.
- */
-public class DashboardActivity extends ListActivity implements View.OnClickListener {
+public class DashboardActivity extends ListActivity implements
+        ActionMode.Callback {
 
-    private AddTask addTask;
+    private static final int MENUITEM_REFRESH = 1;
+    private static final int MENUITEM_ADD = 2;
+    private static final int MENUITEM_DELETE = 3;
+    private static final int MENUITEM_LOGOUT = 4;
+
+
     private ListTask listTask;
-    private MenuItem refreshMenuItem;
+    private AddTask addTask;
     private ArrayAdapter<BaasDocument> adapter;
+    private MenuItem refreshMenuItem;
+    private MenuItem logoutMenuItem;
+
+    private int selectedItem = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+        this.adapter = new Adapter(this);
+        this.setListAdapter(adapter);
 
-        if (!( BaasUser.current().isAuthentcated())) {
-            Log.d("LOG", "USER NOT LOGGED");
-            startLoginActivity();
-            return;
-        }
+        this.getListView().setLongClickable(true);
+        this.getListView().setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        this.getListView().setOnItemLongClickListener(
+                new OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapter,
+                                                   View view, int position, long id) {
+                        if (selectedItem != -1) {
+                            return false;
+                        }
 
+                        selectedItem = position;
+                        startActionMode(DashboardActivity.this);
+                        view.setSelected(true);
+                        return true;
+                    }
+                });
     }
 
-    public void onClick(View v){
-        logoutUser();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refresh();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        refreshMenuItem = menu.add(Menu.NONE, MENUITEM_REFRESH, Menu.NONE,
+                "Refresh");
+        refreshMenuItem.setIcon(R.drawable.ic_menu_refresh);
+        refreshMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if (listTask != null && listTask.getStatus() == Status.RUNNING)
+            refreshMenuItem.setActionView(R.layout.view_menuitem_refresh);
+
+        MenuItem add = menu.add(Menu.NONE, MENUITEM_ADD, Menu.NONE, "Add");
+        add.setIcon(R.drawable.ic_menu_add);
+        add.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        logoutMenuItem = menu.add(Menu.NONE, MENUITEM_LOGOUT, Menu.NONE,
+                "Logout");
+        logoutMenuItem.setIcon(R.drawable.ic_menu_logout);
+        logoutMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+            case MENUITEM_ADD:
+                onClickAddPerson();
+                break;
+            case MENUITEM_REFRESH:
+                refresh();
+                break;
+            case MENUITEM_LOGOUT:
+                logoutUser();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return false;
     }
 
     public void logoutUser(){
@@ -80,41 +154,73 @@ public class DashboardActivity extends ListActivity implements View.OnClickListe
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_dashboard_actions, menu);
-        return super.onCreateOptionsMenu(menu);
+
+
+    private void onUserLogged() {
+        Intent intent = new Intent(this, DashboardActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        finish();
     }
 
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_refresh:
-                //Toast test = Toast.makeText(getApplicationContext(),"REFRESH",Toast.LENGTH_LONG);
-                //test.show();
-                refresh();
-                return true;
-            case R.id.action_add:
-                //test = Toast.makeText(getApplicationContext(),"ADD",Toast.LENGTH_SHORT);
-                //test.show();
-                onClickAddRecipe();
-                return true;
-            case R.id.action_logout:
-                logoutUser();
+            case MENUITEM_DELETE:
+                delete(selectedItem);
+                mode.finish();
+                break;
             default:
-                return super.onOptionsItemSelected(item);
+                return super.onContextItemSelected(item);
         }
+
+        return true;
     }
 
-    public void onClickAddRecipe(){
-        View layout = getLayoutInflater().inflate(R.layout.dialog_add, null);
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        BaasDocument person = adapter.getItem(selectedItem);
+        mode.setTitle(person.getString("name"));
 
-        final EditText nameText = (EditText) layout.findViewById(R.id.nameRecipe);
+        MenuItem delete = menu.add(ContextMenu.NONE, MENUITEM_DELETE,
+                ContextMenu.NONE, "Delete");
+        delete.setIcon(R.drawable.ic_menu_delete);
+        delete.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        return true;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        selectedItem = -1;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    protected void delete(int position) {
+        BaasDocument person = adapter.getItem(position);
+        adapter.remove(person);
+        new DeleteTask().execute(person);
+    }
+
+    private void refresh() {
+        listTask = new ListTask();
+        listTask.execute();
+    }
+
+    private void onClickAddPerson() {
+        View layout = getLayoutInflater().inflate(R.layout.dialog_add, null);
+        final EditText namerecipeText = (EditText) layout.findViewById(R.id.nameRecipe);
         final EditText ingredientsText = (EditText) layout.findViewById(R.id.ingredientsRecipe);
         final EditText directionsText = (EditText) layout.findViewById(R.id.directionsRecipe);
+
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(layout);
@@ -122,61 +228,40 @@ public class DashboardActivity extends ListActivity implements View.OnClickListe
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String name = nameText.getText().toString().trim();
+                String name = namerecipeText.getText().toString().trim();
                 String ingredients = ingredientsText.getText().toString().trim();
                 String directions = directionsText.getText().toString().trim();
+                Log.d("LOG", "NAME RECIPE: " + name);
+                Log.d("LOG", "INGREDIENTS RECIPE: " + ingredients);
+                Log.d("LOG", "DIRECTIONS RECIPE: " + directions);
 
-                if (name.length() > 0 && ingredients.length() > 0 && directions.length() > 0)
-                    addRecipe(name, ingredients,directions);
+
+                if (name.length() > 0 && ingredients.length() > 0 && directions.length() >0)
+                    addPerson(name, ingredients,directions);
             }
         });
+
         builder.create().show();
     }
 
-    public void addRecipe(String name, String ingredients, String directions) {
+    protected void addPerson(String name, String ingredients, String directions) {
         addTask = new AddTask();
         addTask.execute(name, ingredients,directions);
     }
 
-    public void refresh(){
-        listTask = new ListTask();
-        listTask.execute();
-    }
-
-    public class AddTask extends AsyncTask<String, Void, BaasResult<BaasDocument>> {
-
-        @Override
-        protected BaasResult<BaasDocument> doInBackground(String... params) {
-            BaasDocument recipe = new BaasDocument("recipes");
-
-            recipe.putString("name", params[0]);
-            recipe.putString("ingredients", params[1]);
-            recipe.putString("directions", params[2]);
-
-
-
-            return recipe.saveSync();
-        }
-    }
-
-    public class ListTask extends AsyncTask<Void, Void, BaasResult<List<BaasDocument>>> {
-
-        @Override
-        protected void onPreExecute() {
-            if (refreshMenuItem != null)
-                refreshMenuItem.setActionView(R.layout.view_menuitem_refresh);
-        }
-
-        @Override
-        protected BaasResult<List<BaasDocument>> doInBackground(Void... params) {
-            return BaasDocument.fetchAllSync("address-book");
-        }
-
-        @Override
-        protected void onPostExecute(BaasResult<List<BaasDocument>> result) {
-            if (refreshMenuItem != null)
-                refreshMenuItem.setActionView(null);
-            onListReceived(result);
+    public void onPersonAdded(BaasResult<BaasDocument> result) {
+        try {
+            adapter.add(result.get());
+            adapter.notifyDataSetChanged();
+        } catch (BaasClientException e) {
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
+        } catch (BaasServerException e) {
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
+        } catch (BaasException e) {
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 
@@ -190,14 +275,122 @@ public class DashboardActivity extends ListActivity implements View.OnClickListe
 
             adapter.notifyDataSetChanged();
         } catch (BaasClientException e) {
-            //AlertUtils.showErrorAlert(this, e);
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
         } catch (BaasServerException e) {
-            //AlertUtils.showErrorAlert(this, e);
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
         } catch (BaasException e) {
-            //AlertUtils.showErrorAlert(this, e);
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 
+    protected void onPersonDeleted(BaasResult<Void> result) {
+        try {
+            result.get();
+        } catch (BaasClientException e) {
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
+        } catch (BaasServerException e) {
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
+        } catch (BaasException e) {
+            Toast toast = Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+
+    public class ListTask extends AsyncTask<Void, Void, BaasResult<List<BaasDocument>>> {
+
+        @Override
+        protected void onPreExecute() {
+            if (refreshMenuItem != null)
+                refreshMenuItem.setActionView(R.layout.view_menuitem_refresh);
+        }
+
+        @Override
+        protected BaasResult<List<BaasDocument>> doInBackground(Void... params) {
+            return BaasDocument.fetchAllSync("recipes");
+        }
+
+        @Override
+        protected void onPostExecute(BaasResult<List<BaasDocument>> result) {
+            if (refreshMenuItem != null)
+                refreshMenuItem.setActionView(null);
+            onListReceived(result);
+        }
+    }
+
+    public class AddTask extends AsyncTask<String, Void, BaasResult<BaasDocument>> {
+
+        @Override
+        protected BaasResult<BaasDocument> doInBackground(String... params) {
+            BaasDocument person = new BaasDocument("recipes");
+
+            person.putString("name", params[0]);
+            person.putString("ingredients", params[1]);
+            person.putString("directions", params[2]);
+
+
+            return person.saveSync();
+        }
+
+        @Override
+        protected void onPostExecute(BaasResult<BaasDocument> result) {
+            onPersonAdded(result);
+        }
+    }
+
+    public class DeleteTask extends	AsyncTask<BaasDocument, Void, BaasResult<Void>> {
+
+        @Override
+        protected BaasResult<Void> doInBackground(BaasDocument... params) {
+            return params[0].deleteSync();
+        }
+
+        @Override
+        protected void onPostExecute(BaasResult<Void> result) {
+            onPersonDeleted(result);
+        }
+    }
+
+    public class Adapter extends ArrayAdapter<BaasDocument> {
+
+        public Adapter(Context context) {
+            super(context, android.R.layout.simple_list_item_2,	new ArrayList<BaasDocument>());
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = convertView;
+
+            if (view == null) {
+                LayoutInflater inflater = (LayoutInflater) getContext()
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                view = inflater.inflate(android.R.layout.simple_list_item_2,
+                        null);
+
+                Tag tag = new Tag();
+                tag.text1 = (TextView) view.findViewById(android.R.id.text1);
+                tag.text2 = (TextView) view.findViewById(android.R.id.text2);
+                view.setTag(tag);
+            }
+
+            Tag tag = (Tag) view.getTag();
+            BaasDocument entry = getItem(position);
+            tag.text1.setText(entry.getString("name"));
+            //tag.text2.setText(entry.optString("phone"));
+
+            return view;
+        }
+
+    }
+
+    protected static class Tag {
+
+        public TextView text1;
+        public TextView text2;
+
+    }
+
 }
-
-
