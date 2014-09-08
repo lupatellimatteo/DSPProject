@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="/Users/matteo/DSPProject/app/build/intermediates/pre-dexed/debug/baasbox-android-0.8.0-sources-b573ac070f45942dabc41185505e1970d59eb05e.jar"
+        jar="/Users/matteo/DSPProject/app/libs/baasbox-android-0.8.0-sources.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="9d83066274beba88866d4290d0178d4217d82f7d"/>
+    <item
+        dex="/Users/matteo/DSPProject/app/build/intermediates/pre-dexed/debug/baasbox-android-0.8.0-e24e748ca74daf7779e74b86d168d620ffab12c1.jar"
+        jar="/Users/matteo/DSPProject/app/libs/baasbox-android-0.8.0.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="613663498dd316b51ecf78113d77d6e1031c17e8"/>
+    <item
+        dex="/Users/matteo/DSPProject/app/build/intermediates/pre-dexed/debug/classes-67fa6aab1ec1ff679e93eb513c881e9c0acdfa52.jar"
+        jar="/Users/matteo/DSPProject/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/19.1.0/classes.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28"/>
+    <item
+        dex="/Users/matteo/DSPProject/app/build/intermediates/pre-dexed/debug/support-v4-19.1.0-fe930dc68beb1e566675ce71b270d4091c6c249b.jar"
+        jar="/Applications/Android Studio.app/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
+    <item
+        dex="/Users/matteo/DSPProject/app/build/intermediates/pre-dexed/debug/baasbox-android-0.8.0-javadoc-dccb0d104448349db28366d81239c7490b76838f.jar"
+        jar="/Users/matteo/DSPProject/app/libs/baasbox-android-0.8.0-javadoc.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="19d363f3e7abb58074a9d5ed7317b653176dbe4e"/>
+
+</pre-dex-items>

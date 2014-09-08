@@ -1,16 +1,42 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+// Top-level build file
+/*
 
-buildscript {
-    repositories {
-        mavenCentral()
+
+
+task wrapper(type : Wrapper) {
+    gradleVersion = '1.10'
+}
+
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.1.0"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
     }
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-    }
+
+dependencies {
+    compile files('libs/baasbox-android-0.8.0.jar');
 }
+*/

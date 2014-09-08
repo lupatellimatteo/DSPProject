@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- Refresh, should appear as action button -->
+    <item android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_menu_refresh"
+        android:title="action_menu_refresh"
+        android:showAsAction="ifRoom" />
+    <!-- Add, should always be in the overflow -->
+    <item android:id="@+id/action_add"
+        android:icon="@drawable/ic_menu_add"
+        android:title="action_menu_add"
+        android:showAsAction="ifRoom" />
+    <!-- Logout, should always be in the overflow -->
+    <item android:id="@+id/action_logout"
+        android:icon="@drawable/ic_menu_logout"
+        android:title="action_menu_logout"
+        android:showAsAction="ifRoom" />
+
+</menu>
