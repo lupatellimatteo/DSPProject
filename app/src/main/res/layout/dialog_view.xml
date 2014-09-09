@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="10dp" >
+    <TextView
+        android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="fill_horizontal|center_vertical" android:text="@string/name" />
+    <TextView
+        android:id="@+id/viewNameRecipe"
+        android:hint="Name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="fill_horizontal|center_vertical" android:text="@string/ingrendients" />
+    <TextView
+        android:id="@+id/viewIngredientsRecipe"
+        android:hint="Ingredients"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="fill_horizontal|center_vertical" android:text="@string/directions" />
+    <TextView
+        android:id="@+id/viewDirectionsRecipe"
+        android:hint="Directions"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
+
+
+
+

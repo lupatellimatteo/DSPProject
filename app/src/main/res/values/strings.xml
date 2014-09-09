@@ -7,4 +7,9 @@
     <string name="main_activity">MainActivity</string>
     <string name="sub_activity">SubActivity</string>
 
+    <string name="name"><b>Name:</b></string>
+    <string name="ingrendients"><b>Ingredients:</b></string>
+    <string name="directions"><b>Directions:</b></string>
+
+
 </resources>

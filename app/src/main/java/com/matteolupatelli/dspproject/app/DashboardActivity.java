@@ -29,9 +29,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,7 +55,7 @@ public class DashboardActivity extends ListActivity implements
     private int selectedItem = -1;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
 
 
 
@@ -61,8 +63,31 @@ public class DashboardActivity extends ListActivity implements
         this.adapter = new Adapter(this);
         this.setListAdapter(adapter);
 
+        final ListView lv = this.getListView();
+
         this.getListView().setLongClickable(true);
         this.getListView().setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+
+        this.getListView().setOnItemClickListener(
+                new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter,
+                                            View view, int position, long id) {
+
+                        BaasDocument selectedDocument =(BaasDocument) (lv.getItemAtPosition(position));
+
+                        selectedItem=position;
+
+                        onRecipeClicked(selectedDocument);
+
+
+
+
+            }
+        });
+
+
+
         this.getListView().setOnItemLongClickListener(
                 new OnItemLongClickListener() {
                     @Override
@@ -79,6 +104,40 @@ public class DashboardActivity extends ListActivity implements
                     }
                 });
     }
+
+
+     public void onRecipeClicked(BaasDocument selectedDocument) {
+         View layout = getLayoutInflater().inflate(R.layout.dialog_view, null);
+
+         TextView viewnameRecipe = (TextView) layout.findViewById(R.id.viewNameRecipe);
+         TextView viewingredientsRecipe = (TextView) layout.findViewById(R.id.viewIngredientsRecipe);
+         TextView viewdirectionsRecipe = (TextView) layout.findViewById(R.id.viewDirectionsRecipe);
+
+         String nameRecipe=selectedDocument.getString("name");
+
+         String ingredientsRecipe=selectedDocument.getString("ingredients");
+
+         String directionsRecipe=selectedDocument.getString("directions");
+
+         viewnameRecipe.setText(nameRecipe);
+         viewingredientsRecipe.setText(ingredientsRecipe);
+         viewdirectionsRecipe.setText(directionsRecipe);
+
+
+
+         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+         builder.setView(layout);
+         builder.setNegativeButton("Cancel", null);
+
+
+
+         builder.create().show();
+
+         Log.d("LOG", "SELECTED NAME RECIPE " + nameRecipe);
+         Log.d("LOG", "SELECTED INGREDIENTS RECIPE " + ingredientsRecipe);
+         Log.d("LOG", "SELECTED DIRECTIONS RECIPE " + directionsRecipe);
+
+     }
 
     @Override
     protected void onResume() {
@@ -379,7 +438,6 @@ public class DashboardActivity extends ListActivity implements
             Tag tag = (Tag) view.getTag();
             BaasDocument entry = getItem(position);
             tag.text1.setText(entry.getString("name"));
-            //tag.text2.setText(entry.optString("phone"));
 
             return view;
         }
@@ -390,7 +448,6 @@ public class DashboardActivity extends ListActivity implements
 
         public TextView text1;
         public TextView text2;
-
     }
 
 }
