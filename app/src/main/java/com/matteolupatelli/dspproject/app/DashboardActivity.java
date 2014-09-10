@@ -173,7 +173,7 @@ public class DashboardActivity extends ListActivity implements
                 onBackPressed();
                 break;
             case MENUITEM_ADD:
-                onClickAddPerson();
+                onClickAddRecipe();
                 break;
             case MENUITEM_REFRESH:
                 refresh();
@@ -242,8 +242,8 @@ public class DashboardActivity extends ListActivity implements
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        BaasDocument person = adapter.getItem(selectedItem);
-        mode.setTitle(person.getString("name"));
+        BaasDocument recipe = adapter.getItem(selectedItem);
+        mode.setTitle(recipe.getString("name"));
 
         MenuItem delete = menu.add(ContextMenu.NONE, MENUITEM_DELETE,
                 ContextMenu.NONE, "Delete");
@@ -264,9 +264,9 @@ public class DashboardActivity extends ListActivity implements
     }
 
     protected void delete(int position) {
-        BaasDocument person = adapter.getItem(position);
-        adapter.remove(person);
-        new DeleteTask().execute(person);
+        BaasDocument recipe = adapter.getItem(position);
+        adapter.remove(recipe);
+        new DeleteTask().execute(recipe);
     }
 
     private void refresh() {
@@ -274,7 +274,7 @@ public class DashboardActivity extends ListActivity implements
         listTask.execute();
     }
 
-    private void onClickAddPerson() {
+    private void onClickAddRecipe() {
         View layout = getLayoutInflater().inflate(R.layout.dialog_add, null);
         final EditText namerecipeText = (EditText) layout.findViewById(R.id.nameRecipe);
         final EditText ingredientsText = (EditText) layout.findViewById(R.id.ingredientsRecipe);
@@ -296,19 +296,19 @@ public class DashboardActivity extends ListActivity implements
 
 
                 if (name.length() > 0 && ingredients.length() > 0 && directions.length() >0)
-                    addPerson(name, ingredients,directions);
+                    addRecipe(name, ingredients, directions);
             }
         });
 
         builder.create().show();
     }
 
-    protected void addPerson(String name, String ingredients, String directions) {
+    protected void addRecipe(String name, String ingredients, String directions) {
         addTask = new AddTask();
         addTask.execute(name, ingredients,directions);
     }
 
-    public void onPersonAdded(BaasResult<BaasDocument> result) {
+    public void onRecipeAdded(BaasResult<BaasDocument> result) {
         try {
             adapter.add(result.get());
             adapter.notifyDataSetChanged();
@@ -345,7 +345,7 @@ public class DashboardActivity extends ListActivity implements
         }
     }
 
-    protected void onPersonDeleted(BaasResult<Void> result) {
+    protected void onRecipeDeleted(BaasResult<Void> result) {
         try {
             result.get();
         } catch (BaasClientException e) {
@@ -385,19 +385,19 @@ public class DashboardActivity extends ListActivity implements
 
         @Override
         protected BaasResult<BaasDocument> doInBackground(String... params) {
-            BaasDocument person = new BaasDocument("recipes");
+            BaasDocument recipes = new BaasDocument("recipes");
 
-            person.putString("name", params[0]);
-            person.putString("ingredients", params[1]);
-            person.putString("directions", params[2]);
+            recipes.putString("name", params[0]);
+            recipes.putString("ingredients", params[1]);
+            recipes.putString("directions", params[2]);
 
 
-            return person.saveSync();
+            return recipes.saveSync();
         }
 
         @Override
         protected void onPostExecute(BaasResult<BaasDocument> result) {
-            onPersonAdded(result);
+            onRecipeAdded(result);
         }
     }
 
@@ -410,7 +410,7 @@ public class DashboardActivity extends ListActivity implements
 
         @Override
         protected void onPostExecute(BaasResult<Void> result) {
-            onPersonDeleted(result);
+            onRecipeDeleted(result);
         }
     }
 
